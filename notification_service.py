@@ -479,13 +479,13 @@ def send_schedule_email(schedule_data: Dict[str, Any], assigned_employees: Dict[
         print(f"Error in send_schedule_email: {str(e)}")
         return False
 
-def send_forecast_email(forecast_data: Dict[str, Any], required_staff: Dict[str, int]) -> bool:
+def send_forecast_email(forecast_data: Dict[str, Any], required_staff: Dict[str, Dict[str, int]]) -> bool:
     """
     Send forecast email to the team.
     
     Args:
         forecast_data: Dictionary containing forecast data
-        required_staff: Dictionary containing required staff counts
+        required_staff: Dictionary containing required staff counts by operation and role
         
     Returns:
         Boolean indicating success
@@ -500,6 +500,13 @@ def send_forecast_email(forecast_data: Dict[str, Any], required_staff: Dict[str,
         msg["Subject"] = f"Forecast for Tomorrow"
         msg["From"] = EMAIL_CONFIG["sender_email"]
         msg["To"] = ", ".join(EMAIL_CONFIG["default_recipients"])
+        
+        # Get staff counts from the new structure
+        picker_count = required_staff.get('picking', {}).get('picker', 0)
+        processor_count = required_staff.get('processing', {}).get('processor', 0)
+        forklift_count = required_staff.get('loading', {}).get('forklift_driver', 0)
+        
+        total_staff = picker_count + processor_count + forklift_count
         
         # Create the HTML content
         html = f"""
@@ -577,31 +584,27 @@ def send_forecast_email(forecast_data: Dict[str, Any], required_staff: Dict[str,
                     <div class="forecast-section">
                         <h2>Total Forecast:</h2>
                         <p><strong>Total Cases to Pick:</strong> {forecast_data.get('cases_to_pick', 0):,.0f}</p>
-            
+                        <p><strong>Total Picked Orders:</strong> {forecast_data.get('total_picked_orders', 0):,.0f}</p>
+                        <p><strong>Total Packed/Staged Orders:</strong> {forecast_data.get('total_packed_staged_orders', 0):,.0f}</p>
+                        <p><strong>Estimated Pallets:</strong> {forecast_data.get('estimated_pallets', 0):,.0f}</p>
                     </div>
 
                     <div class="staff-section">
                         <h2>Required Staff:</h2>
                         <div class="operation-section">
-                            <h3>Outbound Operations:</h3>
+                            <h3>Operations:</h3>
                             <div class="role-list">
                                 <ul>
-                                    <li><strong>Pickers:</strong> {required_staff.get('outbound', {}).get('picker', 0)}</li>
-                                    <li><strong>Packers:</strong> {required_staff.get('outbound', {}).get('packer', 0)}</li>
-                                    <li><strong>Processors:</strong> {required_staff.get('outbound', {}).get('processor', 0)}</li>
-                                    <li><strong>Forklift Drivers:</strong> {required_staff.get('outbound', {}).get('forklift_driver', 0)}</li>
+                                    <li><strong>Pickers:</strong> {picker_count}</li>
+                                    <li><strong>Processors:</strong> {processor_count}</li>
+                                    <li><strong>Forklift Drivers:</strong> {forklift_count}</li>
                                 </ul>
                             </div>
                         </div>
 
                         <div class="operation-section total-section">
                             <h3>Total Headcount:</h3>
-                            <p><strong>Total Staff Required:</strong> {
-                                required_staff.get('outbound', {}).get('picker', 0) +
-                                required_staff.get('outbound', {}).get('packer', 0) +
-                                required_staff.get('outbound', {}).get('processor', 0) +
-                                required_staff.get('outbound', {}).get('forklift_driver', 0)
-                            }</p>
+                            <p><strong>Total Staff Required:</strong> {total_staff}</p>
                         </div>
                     </div>
                 </div>
@@ -645,13 +648,12 @@ def get_role_url(role: str) -> str:
     # Return the URL if found, otherwise return the default URL
     return ROLE_URLS.get(normalized_role, DEFAULT_ROLE_URL)
 
-def send_short_staffed_notification(shortages: Dict[str, int], date: str) -> bool:
+def send_short_staffed_notification(shortages: Dict[str, int]) -> bool:
     """
     Send a notification email to managers about short-staffed roles.
     
     Args:
         shortages: Dictionary of roles and their shortfall counts
-        date: The date for which the shortage applies
         
     Returns:
         Boolean indicating success
@@ -666,7 +668,7 @@ def send_short_staffed_notification(shortages: Dict[str, int], date: str) -> boo
 
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"Short Staffed Alert for {date}"
+        msg["Subject"] = "Short Staffed Alert"
         msg["From"] = EMAIL_CONFIG["sender_email"]
         msg["To"] = ", ".join(EMAIL_CONFIG["default_recipients"])
 
@@ -674,7 +676,7 @@ def send_short_staffed_notification(shortages: Dict[str, int], date: str) -> boo
         html = f"""
         <html>
         <body>
-            <h2>Short Staffed Alert for {date}</h2>
+            <h2>Short Staffed Alert</h2>
             <p>The following roles are short staffed:</p>
             <ul>
                 {''.join(f'<li><strong>{role}:</strong> {count}</li>' for role, count in shortages.items())}

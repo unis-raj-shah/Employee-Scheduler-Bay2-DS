@@ -5,7 +5,7 @@ from typing import List, Dict, Any
 
 # API Settings
 WISE_API_HEADERS = {
-    "authorization": os.getenv("WISE_API_KEY", "6d95c4d1-a408-4cc4-b1e1-04f3485ec78a"),
+    "authorization": os.getenv("WISE_API_KEY", "f91955ee-5eec-457c-add1-c5fcd86099e4"),
     "wise-company-id": os.getenv("WISE_COMPANY_ID", "ORG-1"),
     "wise-facility-id": os.getenv("WISE_FACILITY_ID", "F1"),
     "content-type": "application/json;charset=UTF-8",
@@ -47,6 +47,7 @@ DEFAULT_METRICS = {
         "avg_pick_time": 1.0,  # minutes per case
         "avg_pack_time": 0.6,  # minutes per case
         "avg_process_time": 0.6,
+        "avg_load_time": 3.0  # minutes per pallet
     }
 }
 

@@ -41,7 +41,7 @@ async def root():
 @app.get("/api/schedule")
 async def get_schedule() -> Dict[str, Any]:
     """
-    Get warehouse scheduling data for tomorrow.
+    Get warehouse scheduling data.
     
     Returns:
         Dict containing scheduling data including required staff and forecast.
@@ -54,7 +54,7 @@ async def get_schedule() -> Dict[str, Any]:
         if not scheduling_data:
             raise HTTPException(
                 status_code=404,
-                detail="No scheduling data available for tomorrow"
+                detail="No scheduling data available"
             )
         return {
             'success': True,
@@ -94,7 +94,6 @@ if __name__ == "__main__":
         print("\n=== Warehouse Shift Scheduler ===")
         result = schedule_service.run_scheduler()
         if result:
-            print(f"\nScheduling for: {result['date']} ({result['day_name']})")
             print("\nForecast:")
             print(f"- Cases to Pick: {result['forecast_data']['cases_to_pick']:.1f}")
             
@@ -128,6 +127,6 @@ if __name__ == "__main__":
                 print("\nShortages (based on available employees):")
                 for role, shortage in shortages.items():
                     print(f"- {format_role_name(role)}: {shortage}")
-                send_short_staffed_notification(shortages, date=result['date'])
+                send_short_staffed_notification(shortages)
         else:
-            print("\nNo scheduling data available for tomorrow")
+            print("\nNo scheduling data available")
