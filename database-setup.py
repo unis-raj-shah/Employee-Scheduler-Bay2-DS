@@ -8,7 +8,7 @@ import traceback
 from config import ROLE_MAPPINGS
 
 # Initialize ChromaDB client and collection
-chroma_client = chromadb.PersistentClient(path="./chroma_db_orgain")
+chroma_client = chromadb.PersistentClient(path="./chroma_db")
 employee_collection = chroma_client.get_or_create_collection(name="employees")
 
 def normalize_role(role):
@@ -21,7 +21,7 @@ def normalize_role(role):
     role = re.sub(r's$', '', role)    # Remove trailing 's'
     return role
 
-def read_employee_data(excel_file="C:/Users/rshah/Downloads/test_emp.xlsx"):
+def read_employee_data(excel_file="C:/Users/rshah/Downloads/bay2_employees.xlsx"):
     """
     Reads employee data from an Excel file and stores unique employees in ChromaDB.
     """

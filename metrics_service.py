@@ -64,7 +64,7 @@ def calculate_required_roles(metrics_summary: Dict[str, Any], forecast_data: Dic
                 'picker': max(1, round((cases_to_pick * picking_rate) / minutes_per_shift)) if picking_rate > 0 else 1
             },
             'processing': {
-                'processor': max(1, round((total_picked_orders * (processing_rate + packing_rate)) / minutes_per_shift)) if processing_rate > 0 else 1
+                'processor': max(1, round(((total_picked_orders + cases_to_pick)) * (processing_rate + packing_rate) / minutes_per_shift)) if processing_rate > 0 else 1
             },
             'loading': {
                 'forklift_driver': max(1, round((estimated_pallets * loading_rate) / minutes_per_shift)) if loading_rate > 0 else 1

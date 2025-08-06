@@ -497,7 +497,7 @@ def send_forecast_email(forecast_data: Dict[str, Any], required_staff: Dict[str,
     try:
         # Create email message
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"Forecast for Tomorrow"
+        msg["Subject"] = f"Forecast for Dropship orders Today - Bay 2"
         msg["From"] = EMAIL_CONFIG["sender_email"]
         msg["To"] = ", ".join(EMAIL_CONFIG["default_recipients"])
         
@@ -577,7 +577,7 @@ def send_forecast_email(forecast_data: Dict[str, Any], required_staff: Dict[str,
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>Forecast for Tomorrow</h1>
+                    <h1>Forecast for Dropship orders Today - Bay 2</h1>
                 </div>
                 
                 <div class="content">
@@ -668,7 +668,7 @@ def send_short_staffed_notification(shortages: Dict[str, int]) -> bool:
 
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = "Short Staffed Alert"
+        msg["Subject"] = "Short Staffed Alert - Dropship orders Today - Bay 2"
         msg["From"] = EMAIL_CONFIG["sender_email"]
         msg["To"] = ", ".join(EMAIL_CONFIG["default_recipients"])
 
